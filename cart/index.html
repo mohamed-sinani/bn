@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Arial, sans-serif; background: #f5f5f5; color: #333; }
+        .header { background: #0A2540; color: #fff; padding: 14px 24px; }
+        .header a { color: #fff; text-decoration: none; margin-right: 16px; font-size: 14px; }
+        .header a:hover { text-decoration: underline; }
+        .container { max-width: 900px; margin: 24px auto; padding: 0 16px; }
+        h1 { font-size: 22px; margin-bottom: 16px; }
+        .msg { background: #d4edda; color: #155724; padding: 10px; border: 1px solid #c3e6cb; border-radius: 4px; margin-bottom: 16px; display: none; }
+        .msg.show { display: block; }
+        table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #ddd; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; font-size: 14px; }
+        th { background: #f9f9f9; font-weight: 600; }
+        .qty-input { width: 50px; padding: 4px; text-align: center; border: 1px solid #ccc; border-radius: 3px; }
+        .btn { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; text-decoration: none; display: inline-block; }
+        .btn-primary { background: #F05A22; color: #fff; }
+        .btn-primary:hover { background: #d44d1a; }
+        .btn-danger { background: #dc3545; color: #fff; }
+        .btn-danger:hover { background: #c82333; }
+        .summary { background: #fff; border: 1px solid #ddd; padding: 20px; margin-top: 20px; }
+        .summary p { margin: 8px 0; font-size: 14px; }
+        .summary .total { font-size: 18px; font-weight: bold; border-top: 1px solid #ddd; padding-top: 10px; margin-top: 10px; }
+        .empty { text-align: center; padding: 40px; background: #fff; border: 1px solid #ddd; }
+        .add-section { background: #fff; border: 1px solid #ddd; padding: 20px; margin-bottom: 20px; }
+        .add-section h2 { font-size: 16px; margin-bottom: 12px; }
+        .product-grid { display: flex; flex-wrap: wrap; gap: 12px; }
+        .product-card { border: 1px solid #ddd; border-radius: 6px; padding: 14px; width: 200px; }
+        .product-card h3 { font-size: 14px; margin-bottom: 4px; }
+        .product-card .price { color: #F05A22; font-weight: bold; font-size: 15px; margin-bottom: 8px; }
+        .product-card .sku { color: #888; font-size: 11px; margin-bottom: 8px; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 11px; font-weight: bold; background: #28a745; color: #fff; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <a href="login.html">Login</a>
+    <a href="index.html" style="float:right;">Cart (<span id="cartCount">0</span>)</a>
+</div>
+
+<div class="container">
+    <h1>Shopping Cart</h1>
+    <div class="msg" id="msg"></div>
+
+    <div class="add-section">
+        <h2>Products</h2>
+        <p style="font-size:13px;color:#888;margin-bottom:12px;">Click "Add to Cart" to simulate adding items</p>
+        <div class="product-grid" id="productList"></div>
+    </div>
+
+    <div id="cartEmpty" class="empty">
+        <p>Your cart is empty.</p>
+    </div>
+
+    <div id="cartContent" style="display:none;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Qty</th>
+                    <th>Total</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="cartBody"></tbody>
+        </table>
+
+        <div style="margin-top:16px;">
+            <button class="btn btn-danger" onclick="clearCart()">Clear Cart</button>
+        </div>
+
+        <div class="summary">
+            <p>Subtotal: <b id="subtotal">TSh 0</b></p>
+            <p>VAT (18%): <b id="vat">TSh 0</b></p>
+            <p class="total">Total: <b id="total">TSh 0</b></p>
+            <button class="btn btn-primary" onclick="alert('Checkout simulated!')">Proceed to Checkout</button>
+        </div>
+    </div>
+</div>
+
+<script>
+var products = [
+    { id: 1, name: "MikroTik CCR2004 Router", sku: "NET-0001", price: 1250000, brand: "MikroTik" },
+    { id: 2, name: "Cisco Catalyst 2960X Switch", sku: "NET-0002", price: 890000, brand: "Cisco" },
+    { id: 3, name: "Ubiquiti UniFi AP AX", sku: "NET-0003", price: 350000, brand: "Ubiquiti" },
+    { id: 4, name: "Fortinet FortiGate 60F", sku: "NET-0004", price: 1750000, brand: "Fortinet" },
+    { id: 5, name: "Panduit CAT6 Cabling Kit", sku: "NET-0005", price: 180000, brand: "Panduit" },
+    { id: 6, name: "HP Aruba 2540 Switch", sku: "NET-0006", price: 620000, brand: "HP Aruba" }
+];
+
+function getCart() { return JSON.parse(localStorage.getItem('cart') || '[]'); }
+function saveCart(c) { localStorage.setItem('cart', JSON.stringify(c)); }
+function fmt(n) { return 'TSh ' + n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+
+function updateCount() {
+    var count = getCart().reduce(function(s, c) { return s + c.qty; }, 0);
+    document.getElementById('cartCount').textContent = count;
+}
+
+function showMsg(t) {
+    var el = document.getElementById('msg');
+    el.textContent = t;
+    el.classList.add('show');
+    setTimeout(function() { el.classList.remove('show'); }, 2000);
+}
+
+function renderProducts() {
+    var cart = getCart();
+    var html = '';
+    products.forEach(function(p) {
+        var inCart = cart.find(function(c) { return c.id === p.id; });
+        html += '<div class="product-card">' +
+            '<h3>' + p.name + '</h3>' +
+            '<div class="sku">' + p.sku + ' | ' + p.brand + '</div>' +
+            '<div class="price">' + fmt(p.price) + '</div>' +
+            (inCart ? '<span class="badge">Added (x' + inCart.qty + ')</span>'
+                    : '<button class="btn btn-primary" onclick="addToCart(' + p.id + ')">Add to Cart</button>') +
+            '</div>';
+    });
+    document.getElementById('productList').innerHTML = html;
+}
+
+function renderCart() {
+    var cart = getCart();
+    var empty = document.getElementById('cartEmpty');
+    var content = document.getElementById('cartContent');
+    if (cart.length === 0) { empty.style.display = 'block'; content.style.display = 'none'; return; }
+    empty.style.display = 'none';
+    content.style.display = 'block';
+
+    var html = '', subtotal = 0;
+    cart.forEach(function(item) {
+        var line = item.price * item.qty;
+        subtotal += line;
+        html += '<tr>' +
+            '<td><b>' + item.name + '</b><br><small style="color:#888;">SKU: ' + item.sku + '</small></td>' +
+            '<td>' + fmt(item.price) + '</td>' +
+            '<td><input type="number" value="' + item.qty + '" min="1" class="qty-input" onchange="updateQty(' + item.id + ',this.value)"></td>' +
+            '<td><b>' + fmt(line) + '</b></td>' +
+            '<td><button class="btn btn-danger" onclick="removeItem(' + item.id + ')">Remove</button></td>' +
+            '</tr>';
+    });
+    document.getElementById('cartBody').innerHTML = html;
+    var vat = Math.round(subtotal * 0.18);
+    document.getElementById('subtotal').textContent = fmt(subtotal);
+    document.getElementById('vat').textContent = fmt(vat);
+    document.getElementById('total').textContent = fmt(subtotal + vat);
+}
+
+function addToCart(id) {
+    var cart = getCart();
+    var p = products.find(function(x) { return x.id === id; });
+    var ex = cart.find(function(x) { return x.id === id; });
+    if (ex) ex.qty++; else cart.push({ id: p.id, name: p.name, sku: p.sku, price: p.price, qty: 1 });
+    saveCart(cart);
+    renderProducts();
+    renderCart();
+    updateCount();
+    showMsg(p.name + ' added to cart!');
+}
+
+function updateQty(id, qty) {
+    qty = Math.max(1, parseInt(qty) || 1);
+    var cart = getCart();
+    var item = cart.find(function(x) { return x.id === id; });
+    if (item) item.qty = qty;
+    saveCart(cart);
+    renderProducts();
+    renderCart();
+    updateCount();
+}
+
+function removeItem(id) {
+    saveCart(getCart().filter(function(x) { return x.id !== id; }));
+    renderProducts();
+    renderCart();
+    updateCount();
+    showMsg('Item removed.');
+}
+
+function clearCart() {
+    if (!confirm('Clear all items?')) return;
+    saveCart([]);
+    renderProducts();
+    renderCart();
+    updateCount();
+    showMsg('Cart cleared.');
+}
+
+renderProducts();
+renderCart();
+updateCount();
+</script>
+</body>
+</html>
