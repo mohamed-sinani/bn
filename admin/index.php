@@ -109,7 +109,7 @@ $recentProducts = fetchAll("SELECT id, name, sku, price, stock_status, stock_qty
         </nav>
         <div class="sidebar-footer">
             <div class="user-info"><i class="fas fa-user-circle"></i> <?php echo htmlspecialchars($user['full_name'] ?? $user['username']); ?></div>
-            <a href="login.php?action=logout"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+            <a href="logout.php"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
         </div>
     </aside>
     <div class="main">

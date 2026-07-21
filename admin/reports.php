@@ -125,7 +125,7 @@ td{padding:10px 12px;font-size:13px;border-bottom:1px solid var(--border);color:
   <a href="customers.php"><i class="fas fa-users"></i> <span>Customers</span></a>
   <a href="company-users.php"><i class="fas fa-user-shield"></i> <span>Authorized Users</span></a>
   <a href="reports.php" class="active"><i class="fas fa-chart-bar"></i> <span>Reports</span></a>
-  <a href="login.php?action=logout" style="margin-top:40px;"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
+  <a href="logout.php" style="margin-top:40px;"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
 </div>
 <div class="main">
   <h1>Reports & Analytics</h1>

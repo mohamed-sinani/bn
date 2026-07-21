@@ -216,7 +216,7 @@ $cartProductIds = array_keys(cartGetItems());
     .products-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 28px; }
     .product-card { background: var(--card); border-radius: 14px; border: 1px solid var(--border); box-shadow: var(--shadow-sm); overflow: hidden; transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; display: flex; flex-direction: column; }
     .product-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); border-color: rgba(240,90,34,0.15); }
-    .product-image-wrap { position: relative; background: #f8fafc; overflow: hidden; }
+    .product-image-wrap { position: relative; background: #f8fafc; overflow: hidden; display: block; text-decoration: none; }
     .product-image-wrap img { width: 100%; height: 180px; object-fit: cover; transition: transform 0.3s; }
     .product-card:hover .product-image-wrap img { transform: scale(1.04); }
     .product-badges { position: absolute; top: 10px; left: 10px; display: flex; flex-direction: column; gap: 4px; }
@@ -552,7 +552,7 @@ $cartProductIds = array_keys(cartGetItems());
           $tags = $p['tags'] ? explode(',', $p['tags']) : [];
       ?>
       <div class="product-card">
-        <div class="product-image-wrap">
+        <a href="product.php?id=<?php echo $p['id']; ?>" class="product-image-wrap">
           <?php echo imageOrPlaceholder($p['image'], $p['name'], $p['brand'] ?? ''); ?>
           <div class="product-badges">
             <span class="badge badge-brand"><i class="fas fa-shield-check"></i> <?php echo htmlspecialchars($p['brand'] ?: 'Generic'); ?></span>
@@ -561,10 +561,10 @@ $cartProductIds = array_keys(cartGetItems());
             <?php endif; ?>
           </div>
           <button class="product-wishlist"><i class="far fa-heart"></i></button>
-        </div>
+        </a>
         <div class="product-body">
           <div class="product-sku">SKU: <?php echo htmlspecialchars($p['sku']); ?></div>
-          <div class="product-name"><?php echo htmlspecialchars($p['name']); ?></div>
+          <a href="product.php?id=<?php echo $p['id']; ?>" class="product-name" style="text-decoration:none;color:inherit;"><?php echo htmlspecialchars($p['name']); ?></a>
           <div class="product-brand-row">
             <?php foreach (array_slice($tags, 0, 3) as $tag): ?>
             <span class="badge badge-brand" style="background:rgba(10,37,64,0.06);color:var(--navy);"><?php echo htmlspecialchars(trim($tag)); ?></span>
@@ -584,7 +584,18 @@ $cartProductIds = array_keys(cartGetItems());
             </div>
           </div>
           <div class="product-moq"><i class="fas fa-box"></i> Min Order: <?php echo $p['moq']; ?> unit<?php echo $p['moq'] > 1 ? 's' : ''; ?></div>
+          <div class="product-stock-left" style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;margin-bottom:10px;padding:6px 10px;border-radius:7px;<?php echo $p['stock_status'] === 'out_of_stock' ? 'background:rgba(220,38,38,0.08);color:#dc2626;' : ($p['stock_status'] === 'low_stock' ? 'background:rgba(217,119,6,0.08);color:#d97706;' : 'background:rgba(5,150,105,0.08);color:#059669;'); ?>">
+            <i class="fas <?php echo $p['stock_status'] === 'out_of_stock' ? 'fa-times-circle' : ($p['stock_status'] === 'low_stock' ? 'fa-exclamation-triangle' : 'fa-check-circle'); ?>"></i>
+            <?php if ($p['stock_status'] === 'out_of_stock'): ?>
+              Out of Stock
+            <?php elseif ($p['stock_status'] === 'low_stock'): ?>
+              Only <?php echo $p['stock_qty']; ?> left — order soon!
+            <?php else: ?>
+              <?php echo $p['stock_qty']; ?> units in stock
+            <?php endif; ?>
+          </div>
           <div class="product-actions">
+            <a href="product.php?id=<?php echo $p['id']; ?>" class="btn-cart" style="text-decoration:none;text-align:center;"><i class="fas fa-eye"></i> View Details</a>
             <?php $inCart = in_array($p['id'], $cartProductIds); ?>
             <form method="POST" action="cart.php" style="flex:1;display:flex;" class="add-to-cart-form">
               <input type="hidden" name="action" value="add">

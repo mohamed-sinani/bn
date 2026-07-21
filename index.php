@@ -374,7 +374,7 @@ $cartProductIds = array_keys(cartGetItems());
         <?php if (!empty($featuredProducts)): ?>
           <?php foreach ($featuredProducts as $product): ?>
             <div class="product-card">
-              <div class="product-image-wrap">
+              <a href="product.php?id=<?php echo $product['id']; ?>" class="product-image-wrap" style="display:block;text-decoration:none;">
                 <?php echo imageOrPlaceholder($product['image'] ?? '', $product['name'], $product['brand'] ?? ''); ?>
                 <div class="product-badges">
                   <?php if (!empty($product['brand'])): ?><span class="badge badge-brand"><?php echo htmlspecialchars($product['brand']); ?></span><?php endif; ?>
@@ -382,10 +382,10 @@ $cartProductIds = array_keys(cartGetItems());
                   <?php if (isset($product['stock']) && $product['stock'] < 1): ?><span class="badge badge-out">Out of Stock</span><?php elseif (isset($product['stock']) && $product['stock'] < 11): ?><span class="badge badge-low">Only <?php echo $product['stock']; ?> left</span><?php endif; ?>
                 </div>
                 <button class="product-wishlist" title="Add to Wishlist"><i class="far fa-heart"></i></button>
-              </div>
+              </a>
               <div class="product-body">
                 <div class="product-sku"><?php echo htmlspecialchars($product['sku'] ?? 'NET-' . str_pad($product['id'], 4, '0', STR_PAD_LEFT)); ?></div>
-                <h3 class="product-name"><?php echo htmlspecialchars($product['name']); ?></h3>
+                <a href="product.php?id=<?php echo $product['id']; ?>" style="text-decoration:none;color:inherit;"><h3 class="product-name"><?php echo htmlspecialchars($product['name']); ?></h3></a>
                 <div class="product-meta">
                   <?php if (!empty($product['category_name'])): ?><span class="badge badge-brand"><?php echo htmlspecialchars($product['category_name']); ?></span><?php endif; ?>
                   <?php if (!empty($product['specs'])): ?><span class="badge badge-stock"><i class="fas fa-cog"></i> <?php echo htmlspecialchars($product['specs']); ?></span><?php endif; ?>
@@ -400,6 +400,7 @@ $cartProductIds = array_keys(cartGetItems());
                   <?php endif; ?>
                 </div>
                 <div class="product-actions">
+                  <a href="product.php?id=<?php echo $product['id']; ?>" class="btn-cart" style="text-decoration:none;text-align:center;"><i class="fas fa-eye"></i> View Details</a>
                   <?php $inCart = in_array($product['id'], $cartProductIds); ?>
                   <form method="POST" action="cart.php" style="display:contents" class="add-to-cart-form">
                     <input type="hidden" name="action" value="add">

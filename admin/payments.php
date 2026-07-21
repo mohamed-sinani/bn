@@ -101,7 +101,7 @@ tr:hover td{background:rgba(240,90,34,0.02)}
   <a href="customers.php"><i class="fas fa-users"></i> <span>Customers</span></a>
   <a href="company-users.php"><i class="fas fa-user-shield"></i> <span>Authorized Users</span></a>
   <a href="reports.php"><i class="fas fa-chart-bar"></i> <span>Reports</span></a>
-  <a href="login.php?action=logout" style="margin-top:40px;"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
+  <a href="logout.php" style="margin-top:40px;"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
 </div>
 <div class="main">
   <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-bottom:16px;">
